@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">ChatApp</string>
+
+    <!-- Strings related to register and login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome!"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="new_message">Send new message</string>
+
+    <!-- Strings related to AuthFragment -->
+    <string name="auth_status_fmt">Email User: %1$s (verified: %2$b)</string>
+    <string name="firebase_status_fmt">Firebase UID: %s</string>
+    <string name="auth_username">Username: %s</string>
+    <string name="signed_out">You are not signed in. To use this sample, first navigate to the Email/Password example to sign in and then return here to enroll in multi-factor auth.</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="prompt_username">Username</string>
+    <string name="desc_firebase_lockup">Firebase logo and name</string>
+    <string name="emailpassword_title_text">Email and Password</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_username">Username</string>
+    <string name="sign_in">Sign In</string>
+    <string name="create_account">Create Account</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="reload">Reload</string>
+
+    <!-- My Strings -->
+    <string name="action_register">Create account</string>
+    <string name="action_login">Login</string>
+    <string name="back_to_exit">Press back again to exit</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="already_registered">Already registered?</string>
+    <string name="not_registered">Not registered?</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="login_success">Welcome %s!</string>
+    <string name="nav_account">My Account</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_logout">Logout</string>
+
+    <string name="tab_messages">Messages</string>
+    <string name="tab_friends">Friends</string>
+    <string name="fab_new_group">Create Group</string>
+    <string name="fab_add_friend">Add Friend</string>
+
+    <string name="dialog_title_send_friend_request">Send a friend request</string>
+    <string name="dialog_send_friend_request_not_found">User not found</string>
+    <string name="dialog_accept_send_friend_request">Send</string>
+    <string name="dialog_cancel">Cancel</string>
+</resources>

@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "972218700784",
+    "firebase_url": "https://chatapp-359cd-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "chatapp-359cd",
+    "storage_bucket": "chatapp-359cd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972218700784:android:049724ebef8de8d9a70335",
+        "android_client_info": {
+          "package_name": "com.example.android.chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "972218700784-d4udjgbc1eg36b46uvqr0gdi2o89f7j7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgD_OTSsOdJm09M5RIzH8XlGxhyu51u5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "972218700784-d4udjgbc1eg36b46uvqr0gdi2o89f7j7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972218700784:android:58a49395a4d9addca70335",
+        "android_client_info": {
+          "package_name": "com.noamrault.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "972218700784-d4udjgbc1eg36b46uvqr0gdi2o89f7j7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgD_OTSsOdJm09M5RIzH8XlGxhyu51u5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "972218700784-d4udjgbc1eg36b46uvqr0gdi2o89f7j7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
