@@ -1,7 +1,5 @@
 package com.noamrault.chatapp.ui.main
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,12 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.noamrault.chatapp.R
@@ -22,6 +20,7 @@ import com.noamrault.chatapp.data.LoginDataSource
 import com.noamrault.chatapp.data.LoginRepository
 import com.noamrault.chatapp.databinding.FragmentMainBinding
 import com.noamrault.chatapp.friendList.FriendAdapter
+import com.noamrault.chatapp.groupList.GroupAdapter
 
 
 class MainFragment : Fragment() {
@@ -33,6 +32,7 @@ class MainFragment : Fragment() {
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
     private lateinit var fabNewGroup: FloatingActionButton
     private lateinit var fabAddFriend: FloatingActionButton
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,15 +41,30 @@ class MainFragment : Fragment() {
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        val tabLayout = binding.root.findViewById<TabLayout>(R.id.main_tabs)
+        val tabLayout = binding.root.findViewById<TabLayout>(R.id.fragment_main_tabs)
         fabNewGroup = binding.root.findViewById(R.id.fab_new_group)
         fabAddFriend = binding.root.findViewById(R.id.fab_add_friend)
+        recyclerView = binding.root.findViewById(R.id.fragment_main_recycler_view)
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(
+                activity,
+                LinearLayoutManager.VERTICAL,
+                false
+            )
+            addItemDecoration(
+                DividerItemDecoration(
+                    this.context,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
+        }
 
         fabNewGroup.setOnClickListener { view ->
             Snackbar.make(view, "Create A New Group", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
-        fabAddFriend.setOnClickListener { view ->
+        fabAddFriend.setOnClickListener {
             AddFriendDialogFragment().show(childFragmentManager, AddFriendDialogFragment.TAG)
         }
 
@@ -102,6 +117,10 @@ class MainFragment : Fragment() {
         fabNewGroup.show()
         fabAddFriend.hide()
 
+        val groupList: ArrayList<String> = ArrayList()
+
+        recyclerView.adapter = GroupAdapter(groupList)
+
         Toast.makeText(
             activity?.baseContext,
             "In development",
@@ -114,7 +133,7 @@ class MainFragment : Fragment() {
         fabAddFriend.show()
 
         loginRepo.user?.let {
-            Firebase.firestore.collection("users").document(it.uid).get(Source.SERVER)
+            Firebase.firestore.collection("users").document(it.uid).get()
                 .addOnCompleteListener(requireActivity()) { task ->
                     if (task.isSuccessful) {
                         @Suppress("UNCHECKED_CAST") val friendList: ArrayList<String>? =
@@ -122,14 +141,18 @@ class MainFragment : Fragment() {
                         if (friendList == null) {
                             Toast.makeText(
                                 activity?.baseContext,
-                                "No friends : (",
+                                "No friends found",
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            val recyclerView =
-                                binding.root.findViewById<RecyclerView>(R.id.fragment_main_recycler_view)
-                            recyclerView.adapter = FriendAdapter(friendList)
-                            recyclerView.layoutManager = LinearLayoutManager(activity)
+                            val friendMap: HashMap<String, String> = HashMap()
+                            for (friend in friendList) {
+                                Firebase.firestore.collection("users").document(friend).get()
+                                    .addOnCompleteListener(requireActivity()) { task2 ->
+                                        friendMap[friend] = task2.result.get("username") as String
+                                        recyclerView.adapter = FriendAdapter(friendList, friendMap)
+                                    }
+                            }
                         }
                     } else {
                         Toast.makeText(

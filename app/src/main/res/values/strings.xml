@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ChatApp</string>
+    <string name="app_name" translatable="false">ChatApp</string>
 
     <!-- Strings related to register and login -->
     <string name="prompt_email">Email</string>
@@ -21,7 +21,6 @@
     <string name="auth_failed">Authentication failed</string>
     <string name="prompt_username">Username</string>
     <string name="desc_firebase_lockup">Firebase logo and name</string>
-    <string name="emailpassword_title_text">Email and Password</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
@@ -52,8 +51,12 @@
     <string name="fab_new_group">Create Group</string>
     <string name="fab_add_friend">Add Friend</string>
 
-    <string name="dialog_title_send_friend_request">Send a friend request</string>
-    <string name="dialog_send_friend_request_not_found">User not found</string>
-    <string name="dialog_accept_send_friend_request">Send</string>
+    <string name="dialog_add_friend_title">Add a friend</string>
+    <string name="dialog_add_friend_not_found">User not found</string>
+    <string name="dialog_add_friend_accept">Add</string>
+    <string name="dialog_remove_friend_title">Remove friend: %s?</string>
+    <string name="dialog_remove_friend_not_found">User not found (You shouldn\'t see this)</string>
+    <string name="dialog_remove_friend_accept">Remove</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="button_remove_friend">Remove Friend</string>
 </resources>

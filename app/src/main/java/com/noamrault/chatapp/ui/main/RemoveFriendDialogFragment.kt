@@ -13,39 +13,38 @@ import com.noamrault.chatapp.R
 import com.noamrault.chatapp.data.LoginDataSource
 import com.noamrault.chatapp.data.LoginRepository
 
-class AddFriendDialogFragment : DialogFragment() {
+class RemoveFriendDialogFragment(
+    private val id: String,
+    private val username: String?
+) : DialogFragment() {
 
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val usernameInput = EditText(activity)
 
         return activity?.let {
             // Use the Builder class for convenient dialog construction
             val builder = AlertDialog.Builder(it)
             builder
-                .setMessage(R.string.dialog_add_friend_title)
-                .setView(usernameInput)
-                .setPositiveButton(R.string.dialog_add_friend_accept) { _, _ ->
+                .setMessage(getString(R.string.dialog_remove_friend_title, username))
+                .setPositiveButton(R.string.dialog_remove_friend_accept) { _, _ ->
                     loginRepo.user?.let { user ->
                         Firebase.firestore.collection("users")
-                            .whereEqualTo("username", usernameInput.text.toString())
+                            .document(loginRepo.user!!.uid)
                             .get()
-                            .addOnSuccessListener { documents ->
-                                for (document in documents) {
-                                    Firebase.firestore
-                                        .collection("users")
-                                        .document(user.uid)
-                                        .update(
-                                            "friends",
-                                            FieldValue.arrayUnion(document.id)
-                                        )
-                                }
+                            .addOnSuccessListener {
+                                Firebase.firestore
+                                    .collection("users")
+                                    .document(user.uid)
+                                    .update(
+                                        "friends",
+                                        FieldValue.arrayRemove(id)
+                                    )
                             }
                             .addOnFailureListener {
                                 Toast.makeText(
                                     requireActivity().baseContext,
-                                    R.string.dialog_add_friend_not_found,
+                                    R.string.dialog_remove_friend_not_found,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }

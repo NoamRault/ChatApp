@@ -7,7 +7,7 @@
                                                    tools:context=".ui.main.MainFragment">
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/main_tabs"
+        android:id="@+id/fragment_main_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent">
@@ -25,10 +25,10 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_main_recycler_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_tabs" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_main_tabs" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_new_group"
