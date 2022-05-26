@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/nav_group_primary"
+        android:title="">
+        <item
+            android:id="@+id/nav_account"
+            android:icon="@drawable/fui_ic_anonymous_white_24dp"
+            android:title="@string/nav_account" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="@string/nav_settings" />
+    </group>
+    <group
+        android:id="@+id/nav_group_logout"
+        android:title="">
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@android:drawable/ic_menu_close_clear_cancel"
+            android:title="@string/nav_logout" />
+    </group>
+</menu>

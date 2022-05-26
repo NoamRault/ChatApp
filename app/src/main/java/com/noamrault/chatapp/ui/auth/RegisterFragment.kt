@@ -1,5 +1,6 @@
 package com.noamrault.chatapp.ui.auth
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
+import com.noamrault.chatapp.MainActivity
 import com.noamrault.chatapp.R
 import com.noamrault.chatapp.data.LoginDataSource
 import com.noamrault.chatapp.data.LoginRepository
@@ -46,7 +48,7 @@ class RegisterFragment : BaseFragment() {
                 }
             }
             loginButton.setOnClickListener {
-                view.findNavController().navigate(R.id.action_RegisterFragment_to_LoginFragment)
+                view.findNavController().navigate(R.id.action_register_to_login)
             }
         }
     }
@@ -64,6 +66,8 @@ class RegisterFragment : BaseFragment() {
         Log.d(TAG, "result:$result")
 
         if (result is Result.Success) {
+            val intent = Intent(this.context, MainActivity::class.java).apply { }
+            startActivity(intent)
             activity?.finish()
         }
     }

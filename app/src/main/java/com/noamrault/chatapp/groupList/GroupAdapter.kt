@@ -26,7 +26,7 @@ class GroupAdapter(private val dataSet: ArrayList<String>) :
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): GroupAdapter.ViewHolder {
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.fragment_main_group_item, viewGroup, false)
+            .inflate(R.layout.fragment_home_group_item, viewGroup, false)
 
         return ViewHolder(view)
     }

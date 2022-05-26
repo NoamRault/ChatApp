@@ -3,26 +3,40 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/nav_graph"
-            app:startDestination="@id/nav_main_fragment">
+            app:startDestination="@id/nav_home_fragment">
 
     <fragment
-        android:id="@+id/nav_main_fragment"
-        android:name="com.noamrault.chatapp.ui.main.MainFragment"
-        android:label="ChatApp"
-        tools:layout="@layout/fragment_main" />
+        android:id="@+id/nav_home_fragment"
+        android:name="com.noamrault.chatapp.ui.main.HomeFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_home_to_group"
+            app:destination="@id/nav_group" />
+        <action
+            android:id="@+id/action_home_to_account"
+            app:destination="@id/nav_account" />
+        <action
+            android:id="@+id/action_home_to_settings"
+            app:destination="@id/nav_settings" />
+    </fragment>
 
-<!--
     <fragment
-        android:id="@+id/nav_account_fragment"
+        android:id="@+id/nav_group"
+        android:name="com.noamrault.chatapp.ui.main.GroupFragment"
+        android:label="@string/menu_group"
+        tools:layout="@layout/fragment_group" />
+
+    <fragment
+        android:id="@+id/nav_account"
         android:name="com.noamrault.chatapp.ui.main.AccountFragment"
-        android:label="My Account"
+        android:label="@string/menu_account"
         tools:layout="@layout/fragment_account" />
 
     <fragment
-        android:id="@+id/nav_settings_fragment"
+        android:id="@+id/nav_settings"
         android:name="com.noamrault.chatapp.ui.main.SettingsFragment"
-        android:label="Settings"
-        tools:layout="@layout/fragment_settings" />
--->
+        android:label="@string/menu_settings"
+        tools:layout="@xml/preferences"/>
 
 </navigation>

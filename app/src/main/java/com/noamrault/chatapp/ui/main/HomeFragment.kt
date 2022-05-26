@@ -7,26 +7,26 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.noamrault.chatapp.R
 import com.noamrault.chatapp.data.LoginDataSource
 import com.noamrault.chatapp.data.LoginRepository
-import com.noamrault.chatapp.databinding.FragmentMainBinding
+import com.noamrault.chatapp.databinding.FragmentHomeBinding
 import com.noamrault.chatapp.friendList.FriendAdapter
 import com.noamrault.chatapp.groupList.GroupAdapter
 
 
-class MainFragment : Fragment() {
+class HomeFragment : Fragment() {
 
-    private var _binding: FragmentMainBinding? = null
-    private val binding: FragmentMainBinding get() = _binding!!
+    private var _binding: FragmentHomeBinding? = null
+    private val binding: FragmentHomeBinding get() = _binding!!
 
     private var backPressTime: Long = 0
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
@@ -39,7 +39,7 @@ class MainFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMainBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         val tabLayout = binding.root.findViewById<TabLayout>(R.id.fragment_main_tabs)
         fabNewGroup = binding.root.findViewById(R.id.fab_new_group)
@@ -61,8 +61,7 @@ class MainFragment : Fragment() {
         }
 
         fabNewGroup.setOnClickListener { view ->
-            Snackbar.make(view, "Create A New Group", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            view.findNavController().navigate(R.id.action_home_to_group)
         }
         fabAddFriend.setOnClickListener {
             AddFriendDialogFragment().show(childFragmentManager, AddFriendDialogFragment.TAG)
@@ -120,12 +119,6 @@ class MainFragment : Fragment() {
         val groupList: ArrayList<String> = ArrayList()
 
         recyclerView.adapter = GroupAdapter(groupList)
-
-        Toast.makeText(
-            activity?.baseContext,
-            "In development",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     private fun showFriends() {

@@ -30,7 +30,7 @@ class FriendAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_main_friend_item, parent, false)
+            .inflate(R.layout.fragment_home_friend_item, parent, false)
 
         return ViewHolder(view)
     }

@@ -18,7 +18,9 @@ class AddFriendDialogFragment : DialogFragment() {
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val usernameInput = EditText(activity)
+        val usernameInput = EditText(activity).apply {
+            hint = getString(R.string.dialog_add_friend_edittext_hint)
+        }
 
         return activity?.let {
             // Use the Builder class for convenient dialog construction
