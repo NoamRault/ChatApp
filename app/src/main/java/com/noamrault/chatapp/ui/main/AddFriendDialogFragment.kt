@@ -10,10 +10,12 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.LoginDataSource
-import com.noamrault.chatapp.data.LoginRepository
+import com.noamrault.chatapp.data.auth.LoginDataSource
+import com.noamrault.chatapp.data.auth.LoginRepository
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
-class AddFriendDialogFragment : DialogFragment() {
+class AddFriendDialogFragment(private val homeFragment: HomeFragment) : DialogFragment() {
 
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
 
@@ -22,10 +24,9 @@ class AddFriendDialogFragment : DialogFragment() {
             hint = getString(R.string.dialog_add_friend_edittext_hint)
         }
 
-        return activity?.let {
+        return activity?.let { activity ->
             // Use the Builder class for convenient dialog construction
-            val builder = AlertDialog.Builder(it)
-            builder
+            AlertDialog.Builder(activity)
                 .setMessage(R.string.dialog_add_friend_title)
                 .setView(usernameInput)
                 .setPositiveButton(R.string.dialog_add_friend_accept) { _, _ ->
@@ -34,20 +35,36 @@ class AddFriendDialogFragment : DialogFragment() {
                             .whereEqualTo("username", usernameInput.text.toString())
                             .get()
                             .addOnSuccessListener { documents ->
-                                for (document in documents) {
-                                    Firebase.firestore
-                                        .collection("users")
-                                        .document(user.uid)
-                                        .update(
-                                            "friends",
-                                            FieldValue.arrayUnion(document.id)
-                                        )
+                                if (documents.isEmpty) {
+                                    Toast.makeText(
+                                        activity,
+                                        R.string.dialog_add_friend_not_found,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    for (document in documents) {
+                                        Firebase.firestore
+                                            .collection("users")
+                                            .document(user.uid)
+                                            .update(
+                                                "friends",
+                                                FieldValue.arrayUnion(document.id)
+                                            )
+                                    }
+                                    Toast.makeText(
+                                        activity,
+                                        R.string.dialog_add_friend_success,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    MainScope().launch {
+                                        homeFragment.showFriends()
+                                    }
                                 }
                             }
                             .addOnFailureListener {
                                 Toast.makeText(
-                                    requireActivity().baseContext,
-                                    R.string.dialog_add_friend_not_found,
+                                    activity,
+                                    "Failed",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -56,8 +73,7 @@ class AddFriendDialogFragment : DialogFragment() {
                 .setNegativeButton(R.string.dialog_cancel) { _, _ ->
                     // User cancelled the dialog
                 }
-            // Create the AlertDialog object and return it
-            builder.create()
+                .create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 

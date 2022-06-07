@@ -10,9 +10,9 @@ import android.view.ViewGroup
 import androidx.navigation.findNavController
 import com.noamrault.chatapp.MainActivity
 import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.LoginDataSource
-import com.noamrault.chatapp.data.LoginRepository
-import com.noamrault.chatapp.data.Result
+import com.noamrault.chatapp.data.auth.LoginDataSource
+import com.noamrault.chatapp.data.auth.LoginRepository
+import com.noamrault.chatapp.data.auth.LoginResult
 import com.noamrault.chatapp.databinding.FragmentLoginBinding
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -64,7 +64,7 @@ class LoginFragment : BaseFragment() {
 
         Log.d(TAG, "result:$result")
 
-        if (result is Result.Success) {
+        if (result is LoginResult.Success) {
             val intent = Intent(this.context, MainActivity::class.java).apply { }
             startActivity(intent)
             activity?.finish()

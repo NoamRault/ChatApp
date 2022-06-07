@@ -7,7 +7,7 @@
                                                    android:focusable="true">
 
     <TextView
-        android:id="@+id/fragment_home_group_name"
+        android:id="@+id/fragment_new_group_friend_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"

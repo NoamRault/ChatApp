@@ -1,4 +1,4 @@
-package com.noamrault.chatapp.data
+package com.noamrault.chatapp.data.auth
 
 import android.util.Log
 import android.widget.Toast
@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.noamrault.chatapp.R
@@ -26,7 +25,7 @@ class LoginDataSource {
         username: String,
         password: String,
         fragment: Fragment
-    ): Result<FirebaseUser> {
+    ): LoginResult<FirebaseUser> {
         return try {
             var userFound = false
 
@@ -67,7 +66,10 @@ class LoginDataSource {
                             if (auth.currentUser?.displayName != null) {
                                 Toast.makeText(
                                     fragment.context,
-                                    fragment.context?.getString(R.string.login_success, auth.currentUser!!.displayName!!),
+                                    fragment.context?.getString(
+                                        R.string.login_success,
+                                        auth.currentUser!!.displayName!!
+                                    ),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -84,16 +86,16 @@ class LoginDataSource {
             }
 
             if (auth.currentUser != null) {
-                Result.Success(auth.currentUser)
+                LoginResult.Success(auth.currentUser)
             } else {
-                Result.Error(IOException("Error registering"))
+                LoginResult.Error(IOException("Error registering"))
             }
         } catch (e: Throwable) {
-            Result.Error(IOException("Error registering", e))
+            LoginResult.Error(IOException("Error registering", e))
         }
     }
 
-    suspend fun login(email: String, password: String, fragment: Fragment): Result<FirebaseUser> {
+    suspend fun login(email: String, password: String, fragment: Fragment): LoginResult<FirebaseUser> {
         return try {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(fragment.requireActivity()) { task ->
@@ -103,7 +105,10 @@ class LoginDataSource {
                         if (auth.currentUser?.displayName != null) {
                             Toast.makeText(
                                 fragment.context,
-                                fragment.context?.getString(R.string.login_success, auth.currentUser!!.displayName!!),
+                                fragment.context?.getString(
+                                    R.string.login_success,
+                                    auth.currentUser!!.displayName!!
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -119,12 +124,12 @@ class LoginDataSource {
                 .await()
 
             if (auth.currentUser != null) {
-                Result.Success(auth.currentUser)
+                LoginResult.Success(auth.currentUser)
             } else {
-                Result.Error(IOException("Error logging in"))
+                LoginResult.Error(IOException("Error logging in"))
             }
         } catch (e: Throwable) {
-            Result.Error(IOException("Error logging in", e))
+            LoginResult.Error(IOException("Error logging in", e))
         }
     }
 

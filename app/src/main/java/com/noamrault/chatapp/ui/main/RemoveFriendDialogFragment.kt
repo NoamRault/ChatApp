@@ -10,10 +10,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.LoginDataSource
-import com.noamrault.chatapp.data.LoginRepository
+import com.noamrault.chatapp.data.auth.LoginDataSource
+import com.noamrault.chatapp.data.auth.LoginRepository
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class RemoveFriendDialogFragment(
+    private val homeFragment: HomeFragment,
     private val id: String,
     private val username: String?
 ) : DialogFragment() {
@@ -22,10 +25,9 @@ class RemoveFriendDialogFragment(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        return activity?.let {
+        return activity?.let { activity ->
             // Use the Builder class for convenient dialog construction
-            val builder = AlertDialog.Builder(it)
-            builder
+            AlertDialog.Builder(activity)
                 .setMessage(getString(R.string.dialog_remove_friend_title, username))
                 .setPositiveButton(R.string.dialog_remove_friend_accept) { _, _ ->
                     loginRepo.user?.let { user ->
@@ -40,11 +42,19 @@ class RemoveFriendDialogFragment(
                                         "friends",
                                         FieldValue.arrayRemove(id)
                                     )
+                                Toast.makeText(
+                                    activity,
+                                    R.string.dialog_remove_friend_success,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                MainScope().launch {
+                                    homeFragment.showFriends()
+                                }
                             }
                             .addOnFailureListener {
                                 Toast.makeText(
-                                    requireActivity().baseContext,
-                                    R.string.dialog_remove_friend_not_found,
+                                    activity,
+                                    "Failed",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -53,8 +63,7 @@ class RemoveFriendDialogFragment(
                 .setNegativeButton(R.string.dialog_cancel) { _, _ ->
                     // User cancelled the dialog
                 }
-            // Create the AlertDialog object and return it
-            builder.create()
+                .create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 

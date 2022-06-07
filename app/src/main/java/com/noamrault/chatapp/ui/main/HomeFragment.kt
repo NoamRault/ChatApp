@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -13,14 +14,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.LoginDataSource
-import com.noamrault.chatapp.data.LoginRepository
+import com.noamrault.chatapp.data.auth.LoginDataSource
+import com.noamrault.chatapp.data.auth.LoginRepository
 import com.noamrault.chatapp.databinding.FragmentHomeBinding
-import com.noamrault.chatapp.friendList.FriendAdapter
-import com.noamrault.chatapp.groupList.GroupAdapter
+import com.noamrault.chatapp.data.friend.FriendAdapter
+import com.noamrault.chatapp.data.group.FriendDataSource
+import com.noamrault.chatapp.data.group.GroupAdapter
+import com.noamrault.chatapp.data.group.GroupDataSource
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
@@ -61,10 +64,10 @@ class HomeFragment : Fragment() {
         }
 
         fabNewGroup.setOnClickListener { view ->
-            view.findNavController().navigate(R.id.action_home_to_group)
+            view.findNavController().navigate(R.id.action_home_to_new_group)
         }
         fabAddFriend.setOnClickListener {
-            AddFriendDialogFragment().show(childFragmentManager, AddFriendDialogFragment.TAG)
+            AddFriendDialogFragment(this).show(childFragmentManager, AddFriendDialogFragment.TAG)
         }
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -72,8 +75,8 @@ class HomeFragment : Fragment() {
                 // Handle tab select
                 if (tab != null) {
                     when (tab.text) {
-                        getString(R.string.tab_messages) -> showMessages()
-                        getString(R.string.tab_friends) -> showFriends()
+                        getString(R.string.tab_messages) -> MainScope().launch { showMessages() }
+                        getString(R.string.tab_friends) -> MainScope().launch { showFriends() }
                     }
                 }
             }
@@ -87,7 +90,9 @@ class HomeFragment : Fragment() {
             }
         })
 
-        showMessages()
+        MainScope().launch {
+            showMessages()
+        }
 
         return binding.root
     }
@@ -112,50 +117,28 @@ class HomeFragment : Fragment() {
         })
     }
 
-    private fun showMessages() {
+    fun openGroup(groupId: String) {
+        val bundle = bundleOf("groupId" to groupId)
+        view?.findNavController()?.navigate(R.id.action_home_to_group, bundle)
+    }
+
+    private suspend fun showMessages() {
         fabNewGroup.show()
         fabAddFriend.hide()
 
-        val groupList: ArrayList<String> = ArrayList()
+        val groupList = GroupDataSource.getGroups(loginRepo.user!!.uid, this)
 
         recyclerView.adapter = GroupAdapter(groupList)
     }
 
-    private fun showFriends() {
+    suspend fun showFriends() {
         fabNewGroup.hide()
         fabAddFriend.show()
 
-        loginRepo.user?.let {
-            Firebase.firestore.collection("users").document(it.uid).get()
-                .addOnCompleteListener(requireActivity()) { task ->
-                    if (task.isSuccessful) {
-                        @Suppress("UNCHECKED_CAST") val friendList: ArrayList<String>? =
-                            task.result.get("friends") as ArrayList<String>?
-                        if (friendList == null) {
-                            Toast.makeText(
-                                activity?.baseContext,
-                                "No friends found",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            val friendMap: HashMap<String, String> = HashMap()
-                            for (friend in friendList) {
-                                Firebase.firestore.collection("users").document(friend).get()
-                                    .addOnCompleteListener(requireActivity()) { task2 ->
-                                        friendMap[friend] = task2.result.get("username") as String
-                                        recyclerView.adapter = FriendAdapter(friendList, friendMap)
-                                    }
-                            }
-                        }
-                    } else {
-                        Toast.makeText(
-                            activity?.baseContext,
-                            "Failed",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-        }
+        val friendList = FriendDataSource.getFriends(loginRepo.user!!.uid, this)
+        val friendMap = FriendDataSource.getFriendMap(friendList)
+
+        recyclerView.adapter = FriendAdapter(friendList, friendMap)
     }
 
     override fun onDestroyView() {

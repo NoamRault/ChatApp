@@ -1,11 +1,14 @@
-package com.noamrault.chatapp.groupList
+package com.noamrault.chatapp.data.group
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.noamrault.chatapp.R
+import com.noamrault.chatapp.ui.main.HomeFragment
 
 class GroupAdapter(private val dataSet: ArrayList<String>) :
     RecyclerView.Adapter<GroupAdapter.ViewHolder>() {
@@ -19,7 +22,10 @@ class GroupAdapter(private val dataSet: ArrayList<String>) :
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.fragment_main_group_name)
+            textView = view.findViewById(R.id.fragment_home_group_name)
+            textView.setOnClickListener {
+                (view.findFragment<Fragment>() as HomeFragment).openGroup(textView.text as String)
+            }
         }
     }
 

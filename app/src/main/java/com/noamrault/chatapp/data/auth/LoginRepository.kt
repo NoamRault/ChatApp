@@ -1,4 +1,4 @@
-package com.noamrault.chatapp.data
+package com.noamrault.chatapp.data.auth
 
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseUser
@@ -28,11 +28,11 @@ class LoginRepository(private val dataSource: LoginDataSource) {
         username: String,
         password: String,
         fragment: Fragment
-    ): Result<FirebaseUser> {
+    ): LoginResult<FirebaseUser> {
         return dataSource.register(email, username, password, fragment)
     }
 
-    suspend fun login(email: String, password: String, fragment: Fragment): Result<FirebaseUser> {
+    suspend fun login(email: String, password: String, fragment: Fragment): LoginResult<FirebaseUser> {
         return dataSource.login(email, password, fragment)
     }
 }
