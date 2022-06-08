@@ -6,9 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.noamrault.chatapp.R
+import com.noamrault.chatapp.data.auth.LoginDataSource
+import com.noamrault.chatapp.data.auth.LoginRepository
 
-class MessageAdapter(private val dataSet: ArrayList<String>) :
+class MessageAdapter(private val dataSet: ArrayList<Message>) :
     RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
+
+    private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
+    private val userId = loginRepo.user!!.uid
 
     private val msgReceived = 0
     private val msgSent = 1
@@ -18,11 +23,15 @@ class MessageAdapter(private val dataSet: ArrayList<String>) :
      * (custom ViewHolder).
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView
+        val author: TextView
+        val content: TextView
+        val date: TextView
 
         init {
             // Define click listener for the ViewHolder's View.
-            textView = view.findViewById(R.id.fragment_home_group_name)
+            author = view.findViewById(R.id.fragment_group_message_author)
+            content = view.findViewById(R.id.fragment_group_message)
+            date = view.findViewById(R.id.fragment_group_message_date)
         }
     }
 
@@ -40,8 +49,7 @@ class MessageAdapter(private val dataSet: ArrayList<String>) :
     }
 
     override fun getItemViewType(position: Int): Int {
-        // TODO
-        return if (true) {
+        return if (dataSet[position].author == userId) {
             msgSent
         } else {
             msgReceived
@@ -54,7 +62,9 @@ class MessageAdapter(private val dataSet: ArrayList<String>) :
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = dataSet[position]
+        viewHolder.author.text = dataSet[position].author
+        viewHolder.content.text = dataSet[position].content
+        viewHolder.date.text = dataSet[position].sentDate.toString()
     }
 
     // Return the size of your dataset (invoked by the layout manager)

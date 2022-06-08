@@ -11,10 +11,13 @@ interface MessageDao {
     fun getAll(): List<Message>
 
     @Query("SELECT * FROM message WHERE id IN (:messageIds)")
-    fun loadAllByIds(messageIds: Array<String>): List<Message>
+    fun findByIds(messageIds: Array<String>): List<Message>
 
     @Query("SELECT * FROM message WHERE group_id LIKE :groupId")
-    fun findByGroup(groupId: String): Message
+    fun findByGroup(groupId: String): List<Message>
+
+    @Query("SELECT id FROM message WHERE group_id LIKE :groupId")
+    fun findIdByGroup(groupId: String): List<String>
 
     @Insert
     fun insertAll(vararg messages: Message)

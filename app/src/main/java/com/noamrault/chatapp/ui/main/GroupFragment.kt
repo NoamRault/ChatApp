@@ -7,16 +7,33 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.EditText
+import android.widget.ImageButton
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.multidex.BuildConfig
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.noamrault.chatapp.MainActivity
 import com.noamrault.chatapp.R
+import com.noamrault.chatapp.data.ObjectSerializer
+import com.noamrault.chatapp.data.SharedHelper
 import com.noamrault.chatapp.data.auth.LoginDataSource
 import com.noamrault.chatapp.data.auth.LoginRepository
+import com.noamrault.chatapp.data.group.GroupAdapter
+import com.noamrault.chatapp.data.group.GroupDataSource
+import com.noamrault.chatapp.data.message.Message
+import com.noamrault.chatapp.data.message.MessageAdapter
+import com.noamrault.chatapp.data.message.MessageDao
+import com.noamrault.chatapp.data.message.MessageDataSource
 import com.noamrault.chatapp.databinding.FragmentGroupBinding
+import java.time.Instant
+import java.util.*
 
 
 class GroupFragment : Fragment() {
@@ -26,6 +43,12 @@ class GroupFragment : Fragment() {
 
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
     private val userId = loginRepo.user!!.uid
+
+    private lateinit var groupId: String
+    private lateinit var messageEditText: EditText
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var sendButton: ImageButton
+
     private val serviceId = BuildConfig.APPLICATION_ID
     private val strategy = Strategy.P2P_STAR
 
@@ -44,7 +67,7 @@ class GroupFragment : Fragment() {
     val connectionLifecycleCallback: ConnectionLifecycleCallback =
         object : ConnectionLifecycleCallback() {
             override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
-                Log.i(ContentValues.TAG, "onConnectionInitiated: accepting connection")
+                Log.i(TAG, "onConnectionInitiated: accepting connection")
 
                 // Automatically accept the connection on both sides.
                 // Nearby.getConnectionsClient(this@MainActivity).acceptConnection(endpointId, payloadCallback)
@@ -78,7 +101,7 @@ class GroupFragment : Fragment() {
             }
 
             override fun onDisconnected(endpointId: String) {
-                Log.i(ContentValues.TAG, "onDisconnected: disconnected from the opponent")
+                Log.i(TAG, "onDisconnected: disconnected from the opponent")
                 // We've been disconnected from this endpoint. No more data can be sent or received.
             }
         }
@@ -94,8 +117,31 @@ class GroupFragment : Fragment() {
                     connectionLifecycleCallback
                 )
 
-                val bytesPayload = Payload.fromBytes("test".toByteArray())
+                var messageId = SharedHelper.getRandomString()
+
+                while (
+                    messageId in (activity as MainActivity).database.messageDao()
+                        .findIdByGroup(groupId)
+                ) {
+                    messageId = SharedHelper.getRandomString()
+                }
+
+                val message = Message(
+                    messageId,
+                    groupId,
+                    messageEditText.text.toString(),
+                    Calendar.getInstance().time,
+                    userId
+                )
+
+                val serializedMessage = ObjectSerializer.serialize(message)
+
+                val bytesPayload = Payload.fromBytes(serializedMessage.toByteArray())
                 Nearby.getConnectionsClient(requireContext()).sendPayload(endpointId, bytesPayload)
+                    .addOnSuccessListener {
+                        (activity as MainActivity).database.messageDao().insertAll(message)
+                        showMessages()
+                    }
             }
 
             override fun onEndpointLost(endpointId: String) {
@@ -110,6 +156,24 @@ class GroupFragment : Fragment() {
     ): View {
         _binding = FragmentGroupBinding.inflate(inflater, container, false)
 
+        messageEditText = binding.root.findViewById(R.id.fragment_group_message_edittext)
+        sendButton = binding.root.findViewById(R.id.fragment_group_send_button)
+        recyclerView = binding.root.findViewById(R.id.fragment_main_recycler_view)
+
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(
+                activity,
+                LinearLayoutManager.VERTICAL,
+                true
+            )
+        }
+
+        sendButton.setOnClickListener {
+            startDiscovery()
+        }
+
+        showMessages()
+
         return binding.root
     }
 
@@ -119,7 +183,7 @@ class GroupFragment : Fragment() {
         // Show Options Menu
         setHasOptionsMenu(true)
 
-        val groupId = arguments?.getString("groupId")
+        groupId = arguments?.getString("groupId")!!
         (activity as MainActivity).setActionBarTitle(groupId)
     }
 
@@ -133,8 +197,12 @@ class GroupFragment : Fragment() {
         super.onStart()
 
         (activity as MainActivity).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    }
 
-        startDiscovery()
+    private fun showMessages() {
+        val messageList = MessageDataSource.getMessages(userId, this)
+
+        recyclerView.adapter = MessageAdapter(messageList)
     }
 
     override fun onDestroy() {

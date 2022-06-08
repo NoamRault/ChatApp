@@ -32,8 +32,10 @@ import com.google.android.gms.nearby.connection.*
 import com.google.android.material.navigation.NavigationView
 import com.noamrault.chatapp.data.AppDatabase
 import com.noamrault.chatapp.data.Converters
+import com.noamrault.chatapp.data.ObjectSerializer
 import com.noamrault.chatapp.data.auth.LoginDataSource
 import com.noamrault.chatapp.data.auth.LoginRepository
+import com.noamrault.chatapp.data.message.Message
 import com.noamrault.chatapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -69,6 +71,8 @@ class MainActivity : AppCompatActivity() {
         }
     private val requestCodeRequiredPermissions = 1
 
+    lateinit var database: AppDatabase
+
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
     private lateinit var userId: String
 
@@ -78,23 +82,15 @@ class MainActivity : AppCompatActivity() {
     // Callbacks for receiving payloads
     private val payloadCallback: PayloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
-
-        }
-
-        override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
-
-        }
-    }
-
-    internal class ReceiveBytesPayloadListener : PayloadCallback() {
-        override fun onPayloadReceived(endpointId: String, payload: Payload) {
             // This always gets the full data of the payload. Is null if it's not a BYTES payload.
             if (payload.type == Payload.Type.BYTES) {
-                val message = String(payload.asBytes()!!)
+                val serializedMessage = String(payload.asBytes()!!)
+                val message = ObjectSerializer.deserialize(serializedMessage)
+                database.messageDao().insertAll(message as Message)
             }
         }
 
-        override fun onPayloadTransferUpdate(endpointId: String, p1: PayloadTransferUpdate) {
+        override fun onPayloadTransferUpdate(endpointId: String, update: PayloadTransferUpdate) {
             // Bytes payloads are sent as a single chunk, so you'll receive a SUCCESS update immediately
             // after the call to onPayloadReceived().
         }
@@ -168,10 +164,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Get the local database
-        val db = Room.databaseBuilder(
+        database = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "chatapp-database"
-        ).build()
+        ).allowMainThreadQueries().build()
 
         // Set the username and email in the navigation drawer's header
         setNavHeaderName()
