@@ -31,12 +31,15 @@ import com.google.android.gms.nearby.Nearby
 import com.google.android.gms.nearby.connection.*
 import com.google.android.material.navigation.NavigationView
 import com.noamrault.chatapp.data.AppDatabase
-import com.noamrault.chatapp.data.Converters
 import com.noamrault.chatapp.data.ObjectSerializer
 import com.noamrault.chatapp.data.auth.LoginDataSource
 import com.noamrault.chatapp.data.auth.LoginRepository
+import com.noamrault.chatapp.data.friend.FriendDataSource
+import com.noamrault.chatapp.data.group.GroupDataSource
 import com.noamrault.chatapp.data.message.Message
 import com.noamrault.chatapp.databinding.ActivityMainBinding
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -157,17 +160,22 @@ class MainActivity : AppCompatActivity() {
 
             // Start Advertising to receive messages
             startAdvertising()
+
+            // Get the local database
+            database = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java, "chatapp-database"
+            ).allowMainThreadQueries().build()
+
+            MainScope().launch {
+                refreshFriends()
+                refreshGroups()
+            }
         }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         drawerLayout = binding.drawerLayout
         setContentView(binding.root)
-
-        // Get the local database
-        database = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "chatapp-database"
-        ).allowMainThreadQueries().build()
 
         // Set the username and email in the navigation drawer's header
         setNavHeaderName()
@@ -298,5 +306,13 @@ class MainActivity : AppCompatActivity() {
     /** Allows fragments to change ActionBar's title */
     fun setActionBarTitle(title: String?) {
         binding.appBarMain.toolbarMain.title = title
+    }
+
+    suspend fun refreshFriends() {
+        FriendDataSource.getFriendsFromServer(userId, this)
+    }
+
+    suspend fun refreshGroups() {
+        GroupDataSource.getGroupsFromServer(userId, this)
     }
 }

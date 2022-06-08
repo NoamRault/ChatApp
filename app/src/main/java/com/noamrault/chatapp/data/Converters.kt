@@ -1,7 +1,10 @@
 package com.noamrault.chatapp.data
 
 import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.noamrault.chatapp.data.friend.Friend
 import java.util.*
+
 
 object Converters {
     @TypeConverter
@@ -13,4 +16,10 @@ object Converters {
     fun dateToTimestamp(date: Date?): Long? {
         return date?.time
     }
+
+    @TypeConverter
+    fun listToJson(value: List<Friend>?) = Gson().toJson(value)
+
+    @TypeConverter
+    fun jsonToList(value: String) = Gson().fromJson(value, Array<Friend>::class.java).toList()
 }

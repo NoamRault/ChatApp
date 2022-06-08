@@ -1,11 +1,11 @@
-package com.noamrault.chatapp.data.group
+package com.noamrault.chatapp.data.friend
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.friend.FriendAdapter
+import com.noamrault.chatapp.MainActivity
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -14,14 +14,28 @@ import kotlinx.coroutines.tasks.await
 class FriendDataSource {
 
     companion object {
-        suspend fun getFriends(
-            uid: String,
+        fun getFriends(
             fragment: Fragment
-        ): ArrayList<String> {
-            val activity = fragment.requireActivity()
-            var friendList: ArrayList<String> = ArrayList()
+        ): ArrayList<Friend> {
+            return ArrayList(
+                (fragment.requireActivity() as MainActivity)
+                    .database
+                    .friendDao()
+                    .getAll()
+            )
+        }
 
-            Firebase.firestore.collection("users").document(uid).get()
+        suspend fun getFriendsFromServer(
+            uid: String,
+            activity: Activity
+        ) {
+            var friendIdList: ArrayList<String> = ArrayList()
+            val friendList: ArrayList<Friend> = ArrayList()
+
+            // Get all user's Friends
+            Firebase.firestore.collection("users")
+                .document(uid)
+                .get()
                 .addOnSuccessListener { result ->
                     if (result.get("friends") == null) {
                         Toast.makeText(
@@ -31,7 +45,7 @@ class FriendDataSource {
                         ).show()
                     } else {
                         @Suppress("UNCHECKED_CAST")
-                        friendList = result.get("friends") as ArrayList<String>
+                        friendIdList = result.get("friends") as ArrayList<String>
                     }
                 }
                 .addOnFailureListener() {
@@ -42,22 +56,24 @@ class FriendDataSource {
                     ).show()
                 }.await()
 
-            return friendList
-        }
+            if (friendIdList.isNotEmpty()) {
+                for (friendId in friendIdList) {
+                    // Get the usernames of each friend
+                    Firebase.firestore.collection("users")
+                        .document(friendId)
+                        .get()
+                        .addOnSuccessListener { result ->
+                            friendList.add(Friend(friendId, result.get("username") as String))
+                        }.await()
+                }
 
-        suspend fun getFriendMap(
-            friendList: ArrayList<String>
-        ): HashMap<String, String> {
-            val friendMap: HashMap<String, String> = HashMap()
-
-            for (friend in friendList) {
-                Firebase.firestore.collection("users").document(friend).get()
-                    .addOnSuccessListener { result ->
-                        friendMap[friend] = result.get("username") as String
-                    }.await()
+                (activity as MainActivity)
+                    .database
+                    .friendDao().apply {
+                        deleteAll()
+                        insertAll(friendList)
+                    }
             }
-
-            return friendMap
         }
     }
 }

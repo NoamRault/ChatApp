@@ -15,13 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.auth.LoginDataSource
-import com.noamrault.chatapp.data.auth.LoginRepository
-import com.noamrault.chatapp.databinding.FragmentHomeBinding
 import com.noamrault.chatapp.data.friend.FriendAdapter
-import com.noamrault.chatapp.data.group.FriendDataSource
+import com.noamrault.chatapp.data.friend.FriendDataSource
 import com.noamrault.chatapp.data.group.GroupAdapter
 import com.noamrault.chatapp.data.group.GroupDataSource
+import com.noamrault.chatapp.databinding.FragmentHomeBinding
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -32,7 +30,6 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding get() = _binding!!
 
     private var backPressTime: Long = 0
-    private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
     private lateinit var fabNewGroup: FloatingActionButton
     private lateinit var fabAddFriend: FloatingActionButton
     private lateinit var recyclerView: RecyclerView
@@ -75,8 +72,8 @@ class HomeFragment : Fragment() {
                 // Handle tab select
                 if (tab != null) {
                     when (tab.text) {
-                        getString(R.string.tab_messages) -> MainScope().launch { showMessages() }
-                        getString(R.string.tab_friends) -> MainScope().launch { showFriends() }
+                        getString(R.string.tab_messages) -> showMessages()
+                        getString(R.string.tab_friends) -> showFriends()
                     }
                 }
             }
@@ -89,10 +86,6 @@ class HomeFragment : Fragment() {
                 // Handle tab unselect
             }
         })
-
-        MainScope().launch {
-            showMessages()
-        }
 
         return binding.root
     }
@@ -117,28 +110,33 @@ class HomeFragment : Fragment() {
         })
     }
 
-    fun openGroup(groupId: String) {
-        val bundle = bundleOf("groupId" to groupId)
+    override fun onResume() {
+        super.onResume()
+
+        showMessages()
+    }
+
+    fun openGroup(groupId: String, groupName: String) {
+        val bundle = bundleOf("groupId" to groupId, "groupName" to groupName)
         view?.findNavController()?.navigate(R.id.action_home_to_group, bundle)
     }
 
-    private suspend fun showMessages() {
+    fun showMessages() {
         fabNewGroup.show()
         fabAddFriend.hide()
 
-        val groupList = GroupDataSource.getGroups(loginRepo.user!!.uid, this)
+        val groupList = GroupDataSource.getGroups(this)
 
         recyclerView.adapter = GroupAdapter(groupList)
     }
 
-    suspend fun showFriends() {
+    fun showFriends() {
         fabNewGroup.hide()
         fabAddFriend.show()
 
-        val friendList = FriendDataSource.getFriends(loginRepo.user!!.uid, this)
-        val friendMap = FriendDataSource.getFriendMap(friendList)
+        val friendList = FriendDataSource.getFriends(this)
 
-        recyclerView.adapter = FriendAdapter(friendList, friendMap)
+        recyclerView.adapter = FriendAdapter(friendList)
     }
 
     override fun onDestroyView() {

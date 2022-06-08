@@ -8,10 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.noamrault.chatapp.R
 
-class NewGroupAdapter(
-    private val modelList: ArrayList<NewGroupModel>,
-    private val hashMap: HashMap<String, String>
-) :
+class NewGroupAdapter(private val modelList: ArrayList<NewGroupModel>) :
     RecyclerView.Adapter<NewGroupAdapter.ViewHolder>() {
 
     /**
@@ -35,7 +32,8 @@ class NewGroupAdapter(
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         val model = modelList[position]
-        viewHolder.textView.text = hashMap[modelList[position].getText()]
+        viewHolder.textView.text = modelList[position].getUsername()
+
         viewHolder.textView.setOnClickListener {
             model.setSelected(!model.isSelected())
             viewHolder.view.setBackgroundColor(if (model.isSelected()) Color.CYAN else Color.WHITE)

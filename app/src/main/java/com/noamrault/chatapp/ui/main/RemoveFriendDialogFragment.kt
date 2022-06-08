@@ -9,6 +9,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.noamrault.chatapp.MainActivity
 import com.noamrault.chatapp.R
 import com.noamrault.chatapp.data.auth.LoginDataSource
 import com.noamrault.chatapp.data.auth.LoginRepository
@@ -48,6 +49,7 @@ class RemoveFriendDialogFragment(
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 MainScope().launch {
+                                    (activity as MainActivity).refreshFriends()
                                     homeFragment.showFriends()
                                 }
                             }

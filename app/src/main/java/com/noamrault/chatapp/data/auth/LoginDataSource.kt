@@ -37,8 +37,12 @@ class LoginDataSource {
                         userFound = true
                     }
                 }
-                .addOnFailureListener { exception ->
-                    Log.w(TAG, "Error getting documents: ", exception)
+                .addOnFailureListener {
+                    Toast.makeText(
+                        fragment.requireActivity().baseContext,
+                        "Failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 .await()
 

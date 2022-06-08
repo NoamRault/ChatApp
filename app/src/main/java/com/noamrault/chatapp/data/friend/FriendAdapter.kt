@@ -10,12 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.noamrault.chatapp.R
+import com.noamrault.chatapp.ui.main.HomeFragment
 import com.noamrault.chatapp.ui.main.RemoveFriendDialogFragment
 
-class FriendAdapter(
-    private val dataSet: ArrayList<String>,
-    private val hashMap: HashMap<String, String>
-) :
+class FriendAdapter(private val dataSet: ArrayList<Friend>) :
     RecyclerView.Adapter<FriendAdapter.ViewHolder>() {
 
     /**
@@ -40,12 +38,16 @@ class FriendAdapter(
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = hashMap[dataSet[position]]
+        viewHolder.textView.text = dataSet[position].username
+        val id = dataSet[position].id
+        val username = dataSet[position].username
+
         viewHolder.button.setOnClickListener {
-            RemoveFriendDialogFragment(viewHolder.view.findFragment(), dataSet[position], hashMap[dataSet[position]]).show(
-                viewHolder.view.findFragment<Fragment>().childFragmentManager,
-                ContentValues.TAG
-            )
+            RemoveFriendDialogFragment(viewHolder.view.findFragment(), id, username)
+                .show(
+                    viewHolder.view.findFragment<Fragment>().childFragmentManager,
+                    ContentValues.TAG
+                )
         }
     }
 

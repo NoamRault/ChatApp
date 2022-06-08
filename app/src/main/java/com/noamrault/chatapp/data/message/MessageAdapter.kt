@@ -22,7 +22,7 @@ class MessageAdapter(private val dataSet: ArrayList<Message>) :
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val author: TextView
         val content: TextView
         val date: TextView

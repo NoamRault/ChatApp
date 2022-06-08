@@ -1,10 +1,16 @@
 package com.noamrault.chatapp.data.newGroup
 
-class NewGroupModel(private val text: String) {
+import com.noamrault.chatapp.data.friend.Friend
+
+class NewGroupModel(private val friend: Friend) {
     private var isSelected = false
 
-    fun getText(): String {
-        return text
+    fun getId(): String {
+        return friend.id
+    }
+
+    fun getUsername(): String {
+        return friend.username
     }
 
     fun setSelected(selected: Boolean) {

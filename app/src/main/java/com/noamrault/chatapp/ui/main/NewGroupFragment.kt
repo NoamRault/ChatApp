@@ -1,35 +1,27 @@
 package com.noamrault.chatapp.ui.main
 
-import android.content.ContentValues.TAG
-import android.graphics.ColorSpace.Model
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.noamrault.chatapp.MainActivity
 import com.noamrault.chatapp.R
-import com.noamrault.chatapp.data.SharedHelper
 import com.noamrault.chatapp.data.auth.LoginDataSource
 import com.noamrault.chatapp.data.auth.LoginRepository
-import com.noamrault.chatapp.databinding.FragmentNewGroupBinding
-import com.noamrault.chatapp.data.friend.FriendAdapter
-import com.noamrault.chatapp.data.group.GroupAdapter
+import com.noamrault.chatapp.data.friend.FriendDataSource
 import com.noamrault.chatapp.data.newGroup.NewGroupAdapter
 import com.noamrault.chatapp.data.newGroup.NewGroupModel
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import com.noamrault.chatapp.databinding.FragmentNewGroupBinding
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
 class NewGroupFragment : Fragment() {
@@ -86,7 +78,7 @@ class NewGroupFragment : Fragment() {
 
         for (model in modelList) {
             if (model.isSelected()) {
-                selectedFriends.add(model.getText())
+                selectedFriends.add(model.getId())
             }
         }
 
@@ -100,41 +92,21 @@ class NewGroupFragment : Fragment() {
                 groupMap
             )
 
-        activity?.onBackPressed()
+        MainScope().launch {
+            (activity as MainActivity).refreshGroups()
+            activity?.onBackPressed()
+        }
     }
 
     private fun showFriends() {
-        var friendList: ArrayList<String>
-        Firebase.firestore.collection("users").document(loginRepo.user!!.uid).get()
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    if (task.result.get("friends") == null) {
-                        Toast.makeText(
-                            activity?.baseContext,
-                            "No friends found",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        @Suppress("UNCHECKED_CAST")
-                        friendList = task.result.get("friends") as ArrayList<String>
-                        val friendMap: HashMap<String, String> = HashMap()
-                        for (friend in friendList) {
-                            Firebase.firestore.collection("users").document(friend).get()
-                                .addOnCompleteListener(requireActivity()) { task2 ->
-                                    friendMap[friend] = task2.result.get("username") as String
-                                    modelList.add(NewGroupModel(friend))
-                                    recyclerView.adapter = NewGroupAdapter(modelList, friendMap)
-                                }
-                        }
-                    }
-                } else {
-                    Toast.makeText(
-                        activity?.baseContext,
-                        "Failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+        val friendList = FriendDataSource.getFriends(this)
+        val modelList = ArrayList<NewGroupModel>()
+
+        for (friend in friendList) {
+            modelList.add(NewGroupModel(friend))
+        }
+
+        recyclerView.adapter = NewGroupAdapter(modelList)
     }
 
 

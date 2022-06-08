@@ -184,7 +184,8 @@ class GroupFragment : Fragment() {
         setHasOptionsMenu(true)
 
         groupId = arguments?.getString("groupId")!!
-        (activity as MainActivity).setActionBarTitle(groupId)
+        val groupName = arguments?.getString("groupName")!!
+        (activity as MainActivity).setActionBarTitle(groupName)
     }
 
     /** Setup an Option Menu to Show the group members or to Quit the group */
