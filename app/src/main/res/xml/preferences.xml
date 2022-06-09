@@ -13,7 +13,6 @@
     <PreferenceCategory app:title="@string/pref_about_title">
         <PreferenceScreen
             app:key="version"
-            app:summary="@string/app_version"
             app:title="@string/pref_app_version_title" />
     </PreferenceCategory>
 

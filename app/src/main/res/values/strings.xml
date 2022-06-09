@@ -1,7 +1,6 @@
 <resources>
     <!-- App Info -->
     <string name="app_name" translatable="false">ChatApp</string>
-    <string name="app_version" translatable="false">0.1</string>
 
     <!-- Strings related to register and login -->
     <string name="prompt_email">Email</string>
@@ -77,6 +76,9 @@
 
     <string name="hint_message">Enter a message…</string>
     <string name="button_send_message">Send message</string>
+    <string name="fragment_group_not_connected">Not connected to another device</string>
+    <string name="message_received">Message Received in Group: %s</string>
+    <string name="message_sent">Message Sent</string>
 
     <!-- Preference Categories Titles -->
     <string name="pref_display_title">Display</string>

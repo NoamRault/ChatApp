@@ -2,19 +2,19 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                    xmlns:app="http://schemas.android.com/apk/res-auto"
                                                    xmlns:tools="http://schemas.android.com/tools"
+                                                   android:id="@+id/fragment_group"
                                                    android:layout_width="match_parent"
                                                    android:layout_height="match_parent"
                                                    tools:context=".ui.main.GroupFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/fragment_main_recycler_view"
+        android:id="@+id/fragment_group_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/fragment_group_message_edittext"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:reverseLayout="true"
-        app:stackFromEnd="false" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/fragment_group_message_edittext"
@@ -32,9 +32,9 @@
         android:id="@+id/fragment_group_send_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/button_send_message"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_send"
-        android:contentDescription="@string/button_send_message" />
+        app:srcCompat="@android:drawable/ic_menu_send" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

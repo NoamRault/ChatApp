@@ -1,5 +1,8 @@
 package com.noamrault.chatapp.data
 
+import com.google.gson.Gson
+import com.noamrault.chatapp.data.friend.Friend
+import com.noamrault.chatapp.data.message.Message
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -12,12 +15,7 @@ class ObjectSerializer {
                 return ""
             }
 
-            val baos = ByteArrayOutputStream()
-            val oos = ObjectOutputStream(baos)
-            oos.writeObject(obj)
-            oos.close()
-
-            return encodeBytes(baos.toByteArray())
+            return Gson().toJson(obj)
         }
 
         fun deserialize(str: String?): Any? {
@@ -25,35 +23,7 @@ class ObjectSerializer {
                 return null
             }
 
-            val bais = ByteArrayInputStream(decodeBytes(str))
-            val ois = ObjectInputStream(bais)
-
-            return ois.readObject()
-        }
-
-        private fun encodeBytes(bytes: ByteArray): String {
-            val buffer = StringBuffer()
-
-            for (byte in bytes) {
-                buffer.append((((byte.toInt() shr 4) and 0xF).plus('a'.code)).toChar())
-                buffer.append((((byte.toInt()) and 0xF).plus('a'.code)).toChar())
-            }
-
-            return buffer.toString()
-        }
-
-        private fun decodeBytes(str: String): ByteArray {
-            val bytes = ByteArray(str.length / 2)
-
-            for (i in str.indices) {
-                var c = str[i]
-                bytes[i / 2] = ((c.minus('a')) shl 4).toByte()
-
-                c = str[i + 1]
-                bytes[i / 2] = (bytes[i / 2] + (c.minus('a'))).toByte()
-            }
-
-            return bytes
+            return Gson().fromJson(str, Message::class.java)
         }
     }
 }

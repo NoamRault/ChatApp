@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.multidex.BuildConfig
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -38,8 +40,10 @@ import com.noamrault.chatapp.data.friend.FriendDataSource
 import com.noamrault.chatapp.data.group.GroupDataSource
 import com.noamrault.chatapp.data.message.Message
 import com.noamrault.chatapp.databinding.ActivityMainBinding
+import com.noamrault.chatapp.ui.main.GroupFragment
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -79,6 +83,7 @@ class MainActivity : AppCompatActivity() {
     private val loginRepo: LoginRepository = LoginRepository(LoginDataSource())
     private lateinit var userId: String
 
+    val endpointIds: ArrayList<String> = ArrayList()
     private val serviceId = BuildConfig.APPLICATION_ID
     private val strategy = Strategy.P2P_STAR
 
@@ -89,7 +94,23 @@ class MainActivity : AppCompatActivity() {
             if (payload.type == Payload.Type.BYTES) {
                 val serializedMessage = String(payload.asBytes()!!)
                 val message = ObjectSerializer.deserialize(serializedMessage)
-                database.messageDao().insertAll(message as Message)
+                database.messageDao().insert(message as Message)
+
+                val groupName = database.groupDao().findById(message.groupId).name
+
+                val navHostFragment =
+                    supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+                val currentFragment: Fragment =
+                    navHostFragment.childFragmentManager.fragments[0]
+                if (currentFragment is GroupFragment) {
+                    currentFragment.showMessages()
+                }
+
+                Toast.makeText(
+                    baseContext,
+                    getString(R.string.message_received, groupName),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -100,7 +121,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Callbacks for connections to other devices
-    private val connectionLifecycleCallback: ConnectionLifecycleCallback =
+    val connectionLifecycleCallback: ConnectionLifecycleCallback =
         object : ConnectionLifecycleCallback() {
             override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
                 Log.i(ContentValues.TAG, "onConnectionInitiated: accepting connection")
@@ -116,6 +137,7 @@ class MainActivity : AppCompatActivity() {
                     ) { _: DialogInterface?, _: Int ->  // The user confirmed, so we can accept the connection.
                         Nearby.getConnectionsClient(this@MainActivity)
                             .acceptConnection(endpointId, payloadCallback)
+                        endpointIds.add(endpointId)
                     }
                     .setNegativeButton(
                         R.string.dialog_cancel
@@ -137,8 +159,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onDisconnected(endpointId: String) {
-                Log.i(ContentValues.TAG, "onDisconnected: disconnected from the opponent")
+                Log.i(ContentValues.TAG, "Disconnected from endpoint: $endpointId")
                 // We've been disconnected from this endpoint. No more data can be sent or received.
+                endpointIds.remove(endpointId)
             }
         }
 
@@ -250,10 +273,11 @@ class MainActivity : AppCompatActivity() {
         val advertisingOptions = AdvertisingOptions.Builder().setStrategy(strategy).build()
         Nearby.getConnectionsClient(this)
             .startAdvertising(
-                userId, serviceId, connectionLifecycleCallback, advertisingOptions
+                loginRepo.user!!.displayName!!,
+                serviceId,
+                connectionLifecycleCallback,
+                advertisingOptions
             )
-            .addOnSuccessListener { unused: Void? -> }
-            .addOnFailureListener { e: Exception? -> }
     }
 
     override fun onBackPressed() {

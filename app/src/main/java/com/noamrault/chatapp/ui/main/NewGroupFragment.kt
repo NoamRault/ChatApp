@@ -100,7 +100,6 @@ class NewGroupFragment : Fragment() {
 
     private fun showFriends() {
         val friendList = FriendDataSource.getFriends(this)
-        val modelList = ArrayList<NewGroupModel>()
 
         for (friend in friendList) {
             modelList.add(NewGroupModel(friend))

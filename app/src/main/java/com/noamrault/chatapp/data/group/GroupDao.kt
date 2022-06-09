@@ -11,11 +11,6 @@ interface GroupDao {
     @Query("SELECT * FROM [group] WHERE id LIKE :groupId")
     fun findById(groupId: String): Group
 
-    /**
-    @Query("SELECT members FROM group WHERE id LIKE :groupId")
-    fun findMembersById(groupId: String): List<Friend>
-    */
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(groupList: List<Group>)
 

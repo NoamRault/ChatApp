@@ -1,9 +1,6 @@
 package com.noamrault.chatapp.data.message
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface MessageDao {
@@ -19,7 +16,10 @@ interface MessageDao {
     @Query("SELECT id FROM message WHERE group_id LIKE :groupId")
     fun findIdByGroup(groupId: String): List<String>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(message: Message)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg messages: Message)
 
     @Delete
