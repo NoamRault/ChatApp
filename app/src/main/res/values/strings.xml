@@ -31,7 +31,6 @@
     <string name="verify_email">Verify Email</string>
     <string name="reload">Reload</string>
 
-    <!-- My Strings -->
     <string name="action_register">Create account</string>
     <string name="action_login">Login</string>
     <string name="back_to_exit">Press back again to exit</string>
@@ -80,6 +79,19 @@
     <string name="message_received">Message Received in Group: %s</string>
     <string name="message_sent">Message Sent</string>
 
+    <string name="no_group_found">No Group Found</string>
+    <string name="menu_show_members">Group Members</string>
+    <string name="menu_leave_group">Leave Group</string>
+    <string name="menu_add_members">Add Members</string>
+    <string name="button_remove_member">Remove Member</string>
+    <string name="account_username">Username</string>
+    <string name="account_email">Email</string>
+    <string name="account_change_password">Change Password</string>
+    <string name="account_delete_account">Delete Account</string>
+    <string name="group_add_members">Add Members</string>
+
+    <string name="dialog_remove_member_title">Remove member: %s?</string>
+
     <!-- Preference Categories Titles -->
     <string name="pref_display_title">Display</string>
     <string name="pref_about_title">About</string>
@@ -87,7 +99,4 @@
     <!-- Preferences Titles -->
     <string name="pref_theme_title">Theme</string>
     <string name="pref_app_version_title">App Version</string>
-    <string name="no_group_found">No Group Found</string>
-    <string name="menu_show_members">Group Members</string>
-    <string name="menu_quit_group">Quit Group</string>
 </resources>

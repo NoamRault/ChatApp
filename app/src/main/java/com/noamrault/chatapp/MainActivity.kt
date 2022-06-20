@@ -271,13 +271,15 @@ class MainActivity : AppCompatActivity() {
     /** Start Advertising to receive messages */
     private fun startAdvertising() {
         val advertisingOptions = AdvertisingOptions.Builder().setStrategy(strategy).build()
-        Nearby.getConnectionsClient(this)
-            .startAdvertising(
-                loginRepo.user!!.displayName!!,
-                serviceId,
-                connectionLifecycleCallback,
-                advertisingOptions
-            )
+        loginRepo.user!!.displayName?.let {
+            Nearby.getConnectionsClient(this)
+                .startAdvertising(
+                    it,
+                    serviceId,
+                    connectionLifecycleCallback,
+                    advertisingOptions
+                )
+        }
     }
 
     override fun onBackPressed() {
@@ -295,14 +297,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Launch the Authentication Activity */
-    private fun authenticate() {
+    fun authenticate() {
         val intent = Intent(this, AuthActivity::class.java).apply { }
         startActivity(intent)
         finish()
     }
 
     /** Set the username and email in the navigation drawer's header */
-    private fun setNavHeaderName() {
+    fun setNavHeaderName() {
         val headerView = findViewById<NavigationView>(R.id.nav_view).getHeaderView(0)
         val usernameTextView = headerView.findViewById<TextView>(R.id.usernameView)
         val emailTextView = headerView.findViewById<TextView>(R.id.emailAddressView)

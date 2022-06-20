@@ -72,7 +72,12 @@ class NewGroupFragment : Fragment() {
         return binding.root
     }
 
-    private fun createGroup(groupName : String) {
+    /**
+     * Create a new group with the name passed in argument and the selected users in the model list
+     *
+     * @param groupName
+     */
+    private fun createGroup(groupName: String) {
         val selectedFriends = ArrayList<String>()
         selectedFriends.add(loginRepo.user!!.uid)
 

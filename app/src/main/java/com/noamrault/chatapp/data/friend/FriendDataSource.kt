@@ -29,7 +29,7 @@ class FriendDataSource {
             uid: String,
             activity: Activity
         ) {
-            var friendIdList: ArrayList<String> = ArrayList()
+            var friendIdList: ArrayList<String>? = ArrayList()
             val friendList: ArrayList<Friend> = ArrayList()
 
             // Get all user's Friends
@@ -49,6 +49,7 @@ class FriendDataSource {
                     }
                 }
                 .addOnFailureListener() {
+                    friendIdList = null
                     Toast.makeText(
                         activity.baseContext,
                         "Failed",
@@ -56,8 +57,8 @@ class FriendDataSource {
                     ).show()
                 }.await()
 
-            if (friendIdList.isNotEmpty()) {
-                for (friendId in friendIdList) {
+            if (friendIdList != null) {
+                for (friendId in friendIdList!!) {
                     // Get the usernames of each friend
                     Firebase.firestore.collection("users")
                         .document(friendId)

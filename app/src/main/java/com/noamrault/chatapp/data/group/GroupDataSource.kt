@@ -27,11 +27,24 @@ class GroupDataSource {
             )
         }
 
+        fun getGroupMembers(
+            fragment: Fragment,
+            groupId: String
+        ): ArrayList<Friend> {
+            return ArrayList(
+                (fragment.requireActivity() as MainActivity)
+                    .database
+                    .groupDao()
+                    .findById(groupId)
+                    .members
+            )
+        }
+
         suspend fun getGroupsFromServer(
             uid: String,
             activity: Activity
         ) {
-            val groupIdList: ArrayList<String> = ArrayList()
+            var groupIdList: ArrayList<String>? = ArrayList()
             val groupList: ArrayList<Group> = ArrayList()
 
             // Get all the Groups where the user is a member
@@ -47,11 +60,12 @@ class GroupDataSource {
                         ).show()
                     } else {
                         for (document in documents) {
-                            groupIdList.add(document.id)
+                            groupIdList!!.add(document.id)
                         }
                     }
                 }
                 .addOnFailureListener {
+                    groupIdList = null
                     Toast.makeText(
                         activity.baseContext,
                         "Failed",
@@ -59,8 +73,8 @@ class GroupDataSource {
                     ).show()
                 }.await()
 
-            if (groupIdList.isNotEmpty()) {
-                for (groupId in groupIdList) {
+            if (groupIdList != null) {
+                for (groupId in groupIdList!!) {
                     var groupName = ""
                     val groupMembers: ArrayList<Friend> = ArrayList()
                     var groupMembersIds: List<String> = ArrayList()

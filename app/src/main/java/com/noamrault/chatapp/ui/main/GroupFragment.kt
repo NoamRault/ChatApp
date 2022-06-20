@@ -7,9 +7,11 @@ import android.view.*
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.multidex.BuildConfig
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.nearby.Nearby
@@ -35,6 +37,7 @@ class GroupFragment : Fragment() {
     private val userId = loginRepo.user!!.uid
 
     private lateinit var groupId: String
+    private var groupName: String? = null
     private lateinit var messageEditText: EditText
     private lateinit var recyclerView: RecyclerView
     private lateinit var sendButton: ImageButton
@@ -93,20 +96,40 @@ class GroupFragment : Fragment() {
         setHasOptionsMenu(true)
 
         groupId = arguments?.getString("groupId")!!
-        val groupName = arguments?.getString("groupName")!!
-        (activity as MainActivity).setActionBarTitle(groupName)
+        groupName = arguments?.getString("groupName")!!
+        if(groupName != null) {
+            (activity as MainActivity).setActionBarTitle(groupName)
+        }
     }
 
     /** Setup an Option Menu to Show the group members or to Quit the group */
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.fragment_group_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+
+        val bundle = bundleOf("groupId" to groupId)
+
+        menu.findItem(R.id.menu_add_members).setOnMenuItemClickListener {
+            view?.findNavController()?.navigate(R.id.action_group_to_add_members, bundle)
+            true
+        }
+        menu.findItem(R.id.menu_show_members).setOnMenuItemClickListener {
+            view?.findNavController()?.navigate(R.id.action_group_to_show_members, bundle)
+            true
+        }
+        menu.findItem(R.id.menu_quit_group).setOnMenuItemClickListener {
+            LeaveGroupDialogFragment(groupId).show(childFragmentManager, AddFriendDialogFragment.TAG)
+            true
+        }
     }
 
     override fun onStart() {
         super.onStart()
 
         (activity as MainActivity).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        if(groupName != null) {
+            (activity as MainActivity).setActionBarTitle(groupName)
+        }
 
         startDiscovery()
     }
@@ -116,51 +139,54 @@ class GroupFragment : Fragment() {
         val messageAdapter = MessageAdapter(messageList, requireActivity() as MainActivity)
 
         recyclerView.adapter = messageAdapter
-        recyclerView.scrollToPosition(messageAdapter.itemCount-1)
+        recyclerView.scrollToPosition(messageAdapter.itemCount - 1)
     }
 
     private fun sendMessages() {
-        if (messageEditText.text.toString() != "" && (activity as MainActivity).endpointIds.isNotEmpty()) {
-            var messageId = SharedHelper.getRandomString()
+        if (messageEditText.text.toString() != "") {
+            if ((activity as MainActivity).endpointIds.isNotEmpty()) {
+                var messageId = SharedHelper.getRandomString()
 
-            while (
-                messageId in (activity as MainActivity).database.messageDao()
-                    .findIdByGroup(groupId)
-            ) {
-                messageId = SharedHelper.getRandomString()
+                while (
+                    messageId in (activity as MainActivity).database.messageDao()
+                        .findIdByGroup(groupId)
+                ) {
+                    messageId = SharedHelper.getRandomString()
+                }
+
+                val message = Message(
+                    messageId,
+                    groupId,
+                    messageEditText.text.toString(),
+                    Calendar.getInstance().time,
+                    userId
+                )
+
+                val serializedMessage = ObjectSerializer.serialize(message)
+
+                val bytesPayload = Payload.fromBytes(serializedMessage.toByteArray())
+
+                for (endpointId in (activity as MainActivity).endpointIds) {
+                    Nearby.getConnectionsClient(requireContext())
+                        .sendPayload(endpointId, bytesPayload)
+                }
+
+                (activity as MainActivity).database.messageDao().insert(message)
+                showMessages()
+                messageEditText.setText("")
+
+                Toast.makeText(
+                    requireActivity().baseContext,
+                    getString(R.string.message_sent),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    requireActivity().baseContext,
+                    getString(R.string.fragment_group_not_connected),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-
-            val message = Message(
-                messageId,
-                groupId,
-                messageEditText.text.toString(),
-                Calendar.getInstance().time,
-                userId
-            )
-
-            val serializedMessage = ObjectSerializer.serialize(message)
-
-            val bytesPayload = Payload.fromBytes(serializedMessage.toByteArray())
-
-            for (endpointId in (activity as MainActivity).endpointIds) {
-                Nearby.getConnectionsClient(requireContext()).sendPayload(endpointId, bytesPayload)
-            }
-
-            (activity as MainActivity).database.messageDao().insert(message)
-            showMessages()
-            messageEditText.setText("")
-
-            Toast.makeText(
-                requireActivity().baseContext,
-                getString(R.string.message_sent),
-                Toast.LENGTH_SHORT
-            ).show()
-        } else {
-            Toast.makeText(
-                requireActivity().baseContext,
-                getString(R.string.fragment_group_not_connected),
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 

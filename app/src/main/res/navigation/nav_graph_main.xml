@@ -12,12 +12,7 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_home_to_group"
-            app:destination="@id/nav_group">
-            <argument
-                android:name="groupId"
-                android:defaultValue="null"
-                app:argType="string" />
-        </action>
+            app:destination="@id/nav_group" />
         <action
             android:id="@+id/action_home_to_account"
             app:destination="@id/nav_account" />
@@ -40,11 +35,25 @@
         android:name="com.noamrault.chatapp.ui.main.GroupFragment"
         android:label="@string/menu_group"
         tools:layout="@layout/fragment_group">
-        <argument
-            android:name="groupId"
-            android:defaultValue="null"
-            app:argType="string" />
+        <action
+            android:id="@+id/action_group_to_add_members"
+            app:destination="@id/nav_add_members" />
+        <action
+            android:id="@+id/action_group_to_show_members"
+            app:destination="@id/nav_show_members" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_add_members"
+        android:name="com.noamrault.chatapp.ui.main.AddMembersFragment"
+        android:label="@string/menu_add_members"
+        tools:layout="@layout/fragment_group_add_members" />
+
+    <fragment
+        android:id="@+id/nav_show_members"
+        android:name="com.noamrault.chatapp.ui.main.GroupMembersFragment"
+        android:label="@string/menu_show_members"
+        tools:layout="@layout/fragment_group_members" />
 
     <fragment
         android:id="@+id/nav_account"

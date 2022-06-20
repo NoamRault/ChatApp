@@ -1,5 +1,6 @@
 package com.noamrault.chatapp.ui.main
 
+import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.EditText
@@ -31,52 +32,56 @@ class AddFriendDialogFragment(private val homeFragment: HomeFragment) : DialogFr
                 .setMessage(R.string.dialog_add_friend_title)
                 .setView(usernameInput)
                 .setPositiveButton(R.string.dialog_add_friend_accept) { _, _ ->
-                    loginRepo.user?.let { user ->
-                        Firebase.firestore.collection("users")
-                            .whereEqualTo("username", usernameInput.text.toString())
-                            .get()
-                            .addOnSuccessListener { documents ->
-                                if (documents.isEmpty) {
-                                    Toast.makeText(
-                                        activity,
-                                        R.string.dialog_add_friend_not_found,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    for (document in documents) {
-                                        Firebase.firestore
-                                            .collection("users")
-                                            .document(user.uid)
-                                            .update(
-                                                "friends",
-                                                FieldValue.arrayUnion(document.id)
-                                            )
-                                    }
-                                    Toast.makeText(
-                                        activity,
-                                        R.string.dialog_add_friend_success,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    MainScope().launch {
-                                        (activity as MainActivity).refreshFriends()
-                                        homeFragment.showFriends()
-                                    }
-                                }
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(
-                                    activity,
-                                    "Failed",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                    }
+                    addFriend(usernameInput, activity)
                 }
                 .setNegativeButton(R.string.dialog_cancel) { _, _ ->
                     // User cancelled the dialog
                 }
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    private fun addFriend(usernameInput: EditText, activity: Activity) {
+        loginRepo.user?.let { user ->
+            Firebase.firestore.collection("users")
+                .whereEqualTo("username", usernameInput.text.toString())
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        Toast.makeText(
+                            activity,
+                            R.string.dialog_add_friend_not_found,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        for (document in documents) {
+                            Firebase.firestore
+                                .collection("users")
+                                .document(user.uid)
+                                .update(
+                                    "friends",
+                                    FieldValue.arrayUnion(document.id)
+                                )
+                        }
+                        Toast.makeText(
+                            activity,
+                            R.string.dialog_add_friend_success,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        MainScope().launch {
+                            (activity as MainActivity).refreshFriends()
+                            homeFragment.showFriends()
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        activity,
+                        "Failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
     }
 
     companion object {

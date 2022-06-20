@@ -99,7 +99,11 @@ class LoginDataSource {
         }
     }
 
-    suspend fun login(email: String, password: String, fragment: Fragment): LoginResult<FirebaseUser> {
+    suspend fun login(
+        email: String,
+        password: String,
+        fragment: Fragment
+    ): LoginResult<FirebaseUser> {
         return try {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(fragment.requireActivity()) { task ->
